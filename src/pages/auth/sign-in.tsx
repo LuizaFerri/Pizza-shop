@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { signIn } from "@/api/sing-in";
 
 const SignInForm = z.object({
   email: z.string().email(),
@@ -20,10 +22,22 @@ export function SignIn() {
     formState: { isSubmitting },
   } = useForm<SignInForm>();
 
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
+  });
+
   async function handleSignIn(data: SignInForm) {
-    console.log(data);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    toast.success("Enviamos um link de autenticação para o seu e-mail!");
+    try {
+      await authenticate({ email: data.email });
+      toast.success("Enviamos um link de acesso para o seu e-mail.", {
+        action: {
+          label: "reenviar",
+          onClick: () => authenticate({ email: data.email }),
+        },
+      });
+    } catch (error) {
+      toast.error("Ocorreu um erro ao enviar o link de acesso.");
+    }
   }
   return (
     <>
