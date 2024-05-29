@@ -48,21 +48,35 @@ export function StoreProfileDialog() {
     },
   });
 
+  function updateManegedRestaurantCache({
+    name,
+    description,
+  }: StoreProfileSchema) {
+    const cached = queryClient.getQueryData<GetManegedRestaurantResponse>([
+      "maneged-restaurant",
+    ]);
+    if (cached) {
+      queryClient.setQueryData<GetManegedRestaurantResponse>(
+        ["maneged-restaurant"],
+        {
+          ...cached,
+          name,
+          description,
+        }
+      );
+    }
+    return { cached };
+  }
+
   const { mutateAsync: updateProfileFn } = useMutation({
     mutationFn: updateProfile,
-    onSuccess(_, { name, description }) {
-      const cached = queryClient.getQueryData<GetManegedRestaurantResponse>([
-        "maneged-restaurant",
-      ]);
-      if (cached) {
-        queryClient.setQueryData<GetManegedRestaurantResponse>(
-          ["maneged-restaurant"],
-          {
-            ...cached,
-            name,
-            description,
-          }
-        );
+    onMutate({ name, description }) {
+      const { cached } = updateManegedRestaurantCache({ name, description });
+      return { previousProfile: cached };
+    },
+    onError(_, __, context) {
+      if (context?.previousProfile) {
+        updateManegedRestaurantCache(context.previousProfile);
       }
     },
   });
