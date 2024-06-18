@@ -5,6 +5,7 @@ import { ArrowRight, Search, X } from "lucide-react";
 import { OrderDetails } from "./order-details";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { OrderStatus } from "./orders-status";
 
 export interface OrderTableRowProps {
   order: {
@@ -41,10 +42,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-slate-400" />
-          <span className="font-medium text-muted-foreground">
-            {order.status}
-          </span>
+           <OrderStatus status={order.status} />
         </div>
       </TableCell>
       <TableCell className="font-medium">{order.customerName}</TableCell>
